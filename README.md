@@ -37,7 +37,7 @@
 git clone <repository-url>
 cd sake_map
 python -m venv .venv
-source .venv/bin/activate  # macOS / Linux
+source .venv/bin/activate
 ```
 
 ### 2. 依存パッケージのインストール
@@ -138,9 +138,9 @@ sake_map/
     │       └── map-full.svg        # 日本地図SVG
     └── templates/
         └── sake_app/
-            ├── base.html            # ベーステンプレート
-            ├── japan_map.html       # 地図コンポーネント
-            ├── login.html           # ログインページ
+            ├── base.html       
+            ├── japan_map.html       
+            ├── login.html   
             ├── prefecture_list.html
             ├── prefecture_detail.html
             ├── sake_list.html
