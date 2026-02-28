@@ -1,0 +1,101 @@
+{% load static %}
+{# 日本地図 SVG を fetch で読み込み、色分け・クリック・ツールチップを付与するインクルード #}
+{# 必要な変数: map_data (JSON文字列), map_base_url (県詳細URLのベース) #}
+
+<div class="map-wrapper">
+	<div id="japan-map-container"></div>
+	<div class="map-tooltip" id="map-tooltip"></div>
+</div>
+<div class="map-legend">
+	<span>0%</span>
+	<div class="legend-bar"></div>
+	<span>100%</span>
+	<span style="margin-left:.5rem;">（飲んだ割合）</span>
+</div>
+
+<script>
+(function() {
+	const mapData = {{map_data|safe}};
+	const baseUrl = "{% url 'sake_app:prefecture_detail' 1 %}".replace("/1/", "/");
+	const tooltip = document.getElementById("map-tooltip");
+	const container = document.getElementById("japan-map-container");
+
+	// 色を割合に応じて計算（0: #f7f7f7 → 1: #8B0000）
+	function ratioColor(ratio) {
+		if (ratio <= 0) return "";
+		const r0=247, g0=247, b0=247;
+		const r1=139, g1=0,   b1=0;
+		const t = Math.min(ratio, 1);
+		const r = Math.round(r0 + (r1-r0)*t);
+		const g = Math.round(g0 + (g1-g0)*t);
+		const b = Math.round(b0 + (b1-b0)*t);
+		return `rgb(${r},${g},${b})`;
+	}
+
+	fetch("{% static 'sake_app/map-full.svg' %}")
+		.then(res => res.text())
+		.then(svg => {
+		container.innerHTML = svg;
+
+		document.querySelectorAll(".geolonia-svg-map .prefecture").forEach(pref => {
+			const code = pref.dataset.code;
+			const info = mapData[code];
+
+			// 飲酒割合に応じた色分け
+			if (info) {
+				const color = ratioColor(info.ratio);
+				if (color) {
+				 	pref.style.fill = color;
+				}
+			}
+
+			// クリック → 都道府県詳細ページ（リップル風フィードバック付き）
+			pref.style.cursor = "pointer";
+			pref.addEventListener("click", () => {
+				// クリック時の視覚フィードバック
+				const origFill = pref.style.fill || "";
+				const origStroke = pref.style.stroke || "";
+				const origStrokeWidth = pref.style.strokeWidth || "";
+				pref.style.fill = "#c0392b";
+				pref.style.stroke = "#fff";
+				pref.style.strokeWidth = "2";
+				pref.style.transition = "fill .1s, stroke .1s, stroke-width .1s";
+				setTimeout(() => {
+					pref.style.fill = origFill;
+					pref.style.stroke = origStroke;
+					pref.style.strokeWidth = origStrokeWidth;
+					setTimeout(() => {
+						window.location.href = baseUrl + code + "/";
+					}, 120);
+				}, 150);
+			});
+
+			// ホバー
+			pref.addEventListener("mouseover", () => {
+				pref.dataset.origFill = pref.style.fill || "";
+				pref.style.opacity = "0.75";
+				pref.style.filter = "brightness(0.9)";
+			});
+			pref.addEventListener("mouseout", () => {
+				pref.style.fill = pref.dataset.origFill || "";
+				pref.style.opacity = "";
+				pref.style.filter = "";
+			});
+
+			// ツールチップ
+			pref.addEventListener("mouseenter", () => {
+				if (!info) return;
+				tooltip.innerHTML = `<strong>${info.name}</strong><br>銘柄数: ${info.sake_count}<br>飲んだ: ${info.drunk_count} (${Math.round(info.ratio*100)}%)`;
+				tooltip.style.opacity = "1";
+			});
+			pref.addEventListener("mousemove", (e) => {
+				tooltip.style.left = (e.clientX + 14) + "px";
+				tooltip.style.top  = (e.clientY + 14) + "px";
+			});
+			pref.addEventListener("mouseleave", () => {
+				tooltip.style.opacity = "0";
+			});
+		});
+		});
+})();
+</script>

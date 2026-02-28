@@ -1,0 +1,35 @@
+{% extends "sake_app/base.html" %}
+{% block title %}お気に入り - 日本酒マップ{% endblock %}
+
+{% block breadcrumb %}
+<div class="breadcrumb">
+  <a href="{% url 'sake_app:prefecture_list' %}">トップ</a> &gt; お気に入り
+</div>
+{% endblock %}
+
+{% block content %}
+<h2>♥ お気に入り</h2>
+
+{% if logs %}
+<div class="card-grid">
+  {% for log in logs %}
+  <a class="card" href="{% url 'sake_app:sake_detail' log.sake.pk %}">
+    <div class="name">{{ log.sake.name }}</div>
+    <div class="sub">
+      {% if log.sake.brewery %}{{ log.sake.brewery.name }}{% endif %}
+    </div>
+    <div class="sub">
+      {% if log.sake.brewery and log.sake.brewery.prefecture %}
+        {{ log.sake.brewery.prefecture.name }}
+      {% endif %}
+    </div>
+    {% if log.rating %}
+    <div class="sub" style="margin-top:.3rem;">評価: {{ log.get_rating_display }}</div>
+    {% endif %}
+  </a>
+  {% endfor %}
+</div>
+{% else %}
+<p class="empty">まだお気に入りがありません。<br>日本酒の詳細ページから「いいね」を付けましょう。</p>
+{% endif %}
+{% endblock %}

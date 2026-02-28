@@ -1,0 +1,128 @@
+{% extends "sake_app/base.html" %}
+{% block title %}{{ sake.name }} - 日本酒マップ{% endblock %}
+
+{% block breadcrumb %}
+<div class="breadcrumb">
+	<a href="{% url 'sake_app:prefecture_list' %}">トップ</a> &gt;
+	<a href="{% url 'sake_app:sake_list' %}">日本酒一覧</a> &gt;
+	{{ sake.name }}
+</div>
+{% endblock %}
+
+{% block content %}
+<h2>{{ sake.name }}</h2>
+
+<div class="detail-section">
+	<h3>基本情報</h3>
+	<div class="detail-row">
+		<div class="detail-label">銘柄名</div>
+		<div class="detail-value">{{ sake.name }}</div>
+	</div>
+	<div class="detail-row">
+		<div class="detail-label">蔵元</div>
+		<div class="detail-value">{{ sake.brewery.name|default:"-" }}</div>
+	</div>
+	<div class="detail-row">
+		<div class="detail-label">都道府県</div>
+		<div class="detail-value">
+		{% if sake.brewery and sake.brewery.prefecture %}
+		<a href="{% url 'sake_app:prefecture_detail' sake.brewery.prefecture.pk %}">
+			{{ sake.brewery.prefecture.name }}
+		</a>
+		{% else %}-{% endif %}
+		</div>
+	</div>
+</div>
+
+{% if sake.f1_hanayaka is not None %}
+<div class="detail-section">
+	<h3>フレーバーチャート</h3>
+	<div class="flavor-chart">
+		<div class="flavor-bar-wrap">
+			<div class="label">華やか</div>
+			<div class="flavor-bar">
+				<div class="fill" style="width:{{ sake.f1_percent|default:0|floatformat:0 }}%;"></div>
+			</div>
+			<div class="val">{{ sake.f1_hanayaka|default:"-"|floatformat:2 }}</div>
+		</div>
+		<div class="flavor-bar-wrap">
+			<div class="label">芳醇</div>
+			<div class="flavor-bar">
+				<div class="fill" style="width:{{ sake.f2_percent|default:0|floatformat:0 }}%;"></div>
+			</div>
+			<div class="val">{{ sake.f2_houjun|default:"-"|floatformat:2 }}</div>
+		</div>
+		<div class="flavor-bar-wrap">
+			<div class="label">重厚</div>
+			<div class="flavor-bar">
+				<div class="fill" style="width:{{ sake.f3_percent|default:0|floatformat:0 }}%;"></div>
+			</div>
+			<div class="val">{{ sake.f3_juukou|default:"-"|floatformat:2 }}</div>
+		</div>
+		<div class="flavor-bar-wrap">
+			<div class="label">穏やか</div>
+			<div class="flavor-bar">
+				<div class="fill" style="width:{{ sake.f4_percent|default:0|floatformat:0 }}%;"></div>
+			</div>
+			<div class="val">{{ sake.f4_odayaka|default:"-"|floatformat:2 }}</div>
+		</div>
+		<div class="flavor-bar-wrap">
+			<div class="label">ドライ</div>
+			<div class="flavor-bar">
+				<div class="fill" style="width:{{ sake.f5_percent|default:0|floatformat:0 }}%;"></div>
+			</div>
+			<div class="val">{{ sake.f5_dry|default:"-"|floatformat:2 }}</div>
+		</div>
+		<div class="flavor-bar-wrap">
+			<div class="label">軽快</div>
+			<div class="flavor-bar">
+				<div class="fill" style="width:{{ sake.f6_percent|default:0|floatformat:0 }}%;"></div>
+			</div>
+			<div class="val">{{ sake.f6_keikai|default:"-"|floatformat:2 }}</div>
+		</div>
+	</div>
+</div>
+{% endif %}
+
+{# ── SakeLog 登録・編集フォーム ── #}
+{% if form %}
+<div class="detail-section">
+	<h3>{% if log %}ログを編集{% else %}ログを登録{% endif %}</h3>
+	{% if messages %}
+	{% for message in messages %}
+	<p style="color:#2e7d32;font-weight:500;margin-bottom:.8rem;">{{ message }}</p>
+	{% endfor %}
+	{% endif %}
+	<form method="post">
+		{% csrf_token %}
+		<div class="form-grid">
+			<div class="form-group">
+				<label for="id_is_drunk">飲んだ</label>
+				{{ form.is_drunk }}
+			</div>
+			<div class="form-group">
+				<label for="id_is_liked">いいね</label>
+				{{ form.is_liked }}
+			</div>
+			<div class="form-group">
+				<label for="id_rating">評価</label>
+				{{ form.rating }}
+			</div>
+			<div class="form-group">
+				<label for="id_drunk_at">飲んだ日</label>
+				{{ form.drunk_at }}
+			</div>
+			<div class="form-group" style="grid-column:1/-1;">
+				<label for="id_memo">メモ</label>
+				{{ form.memo }}
+			</div>
+		</div>
+		<button type="submit" class="btn-save">{% if log %}更新する{% else %}登録する{% endif %}</button>
+	</form>
+</div>
+{% elif not user.is_authenticated %}
+<div class="detail-section">
+	<p style="text-align:center;color:var(--text-light);">ログを記録するには<a href="{% url 'admin:index' %}">ログイン</a>してください。</p>
+</div>
+{% endif %}
+{% endblock %}

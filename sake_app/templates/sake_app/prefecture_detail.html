@@ -1,0 +1,45 @@
+{% extends "sake_app/base.html" %}
+{% block title %}{{ prefecture.name }}の日本酒 - 日本酒マップ{% endblock %}
+
+{% block breadcrumb %}
+<div class="breadcrumb">
+  <a href="{% url 'sake_app:prefecture_list' %}">都道府県一覧</a> &gt; {{ prefecture.name }}
+</div>
+{% endblock %}
+
+{% block content %}
+<h2>{{ prefecture.name }}の日本酒（{{ sakes|length }}銘柄）</h2>
+
+{% if sakes %}
+<table>
+  <thead>
+    <tr>
+      <th>銘柄名</th>
+      <th>蔵元</th>
+      <th>華やか</th>
+      <th>芳醇</th>
+      <th>重厚</th>
+      <th>穏やか</th>
+      <th>ドライ</th>
+      <th>軽快</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for sake in sakes %}
+    <tr>
+      <td><a href="{% url 'sake_app:sake_detail' sake.pk %}">{{ sake.name }}</a></td>
+      <td>{{ sake.brewery.name|default:"-" }}</td>
+      <td>{{ sake.f1_hanayaka|floatformat:2|default:"-" }}</td>
+      <td>{{ sake.f2_houjun|floatformat:2|default:"-" }}</td>
+      <td>{{ sake.f3_juukou|floatformat:2|default:"-" }}</td>
+      <td>{{ sake.f4_odayaka|floatformat:2|default:"-" }}</td>
+      <td>{{ sake.f5_dry|floatformat:2|default:"-" }}</td>
+      <td>{{ sake.f6_keikai|floatformat:2|default:"-" }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">この都道府県の日本酒データはありません。</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,110 @@
+{% extends "sake_app/base.html" %}
+{% block title %}{{ log.sake.name }}のログ - 日本酒マップ{% endblock %}
+
+{% block breadcrumb %}
+<div class="breadcrumb">
+  <a href="{% url 'sake_app:prefecture_list' %}">トップ</a> &gt;
+  <a href="{% url 'sake_app:sakelog_list' %}">マイログ</a> &gt;
+  {{ log.sake.name }}
+</div>
+{% endblock %}
+
+{% block content %}
+<h2>{{ log.sake.name }} のログ</h2>
+
+<div class="detail-section">
+  <h3>日本酒情報</h3>
+  <div class="detail-row">
+    <div class="detail-label">銘柄名</div>
+    <div class="detail-value">
+      <a href="{% url 'sake_app:sake_detail' log.sake.pk %}">{{ log.sake.name }}</a>
+    </div>
+  </div>
+  <div class="detail-row">
+    <div class="detail-label">蔵元</div>
+    <div class="detail-value">{{ log.sake.brewery.name|default:"-" }}</div>
+  </div>
+  <div class="detail-row">
+    <div class="detail-label">都道府県</div>
+    <div class="detail-value">
+      {% if log.sake.brewery and log.sake.brewery.prefecture %}
+        <a href="{% url 'sake_app:prefecture_detail' log.sake.brewery.prefecture.pk %}">
+          {{ log.sake.brewery.prefecture.name }}
+        </a>
+      {% else %}-{% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="detail-section">
+  <h3>あなたの記録</h3>
+  <div class="detail-row">
+    <div class="detail-label">状態</div>
+    <div class="detail-value">
+      {% if log.is_drunk %}<span class="badge badge-drunk">飲んだ</span>{% endif %}
+      {% if log.is_liked %}<span class="badge badge-liked">♥ いいね</span>{% endif %}
+      {% if not log.is_drunk and not log.is_liked %}-{% endif %}
+    </div>
+  </div>
+  <div class="detail-row">
+    <div class="detail-label">評価</div>
+    <div class="detail-value rating">
+      {% if log.rating %}{{ log.get_rating_display }}{% else %}-{% endif %}
+    </div>
+  </div>
+  <div class="detail-row">
+    <div class="detail-label">飲んだ日</div>
+    <div class="detail-value">{{ log.drunk_at|default:"-" }}</div>
+  </div>
+  <div class="detail-row">
+    <div class="detail-label">メモ</div>
+    <div class="detail-value">{{ log.memo|default:"-"|linebreaksbr }}</div>
+  </div>
+  <div class="detail-row">
+    <div class="detail-label">記録日</div>
+    <div class="detail-value">{{ log.created_at|date:"Y/m/d H:i" }}</div>
+  </div>
+  <div class="detail-row">
+    <div class="detail-label">最終更新</div>
+    <div class="detail-value">{{ log.updated_at|date:"Y/m/d H:i" }}</div>
+  </div>
+</div>
+
+{# ── ログ編集フォーム ── #}
+{% if form %}
+<div class="detail-section">
+  <h3>ログを編集</h3>
+  {% if messages %}
+  {% for message in messages %}
+  <p style="color:#2e7d32;font-weight:500;margin-bottom:.8rem;">{{ message }}</p>
+  {% endfor %}
+  {% endif %}
+  <form method="post">
+    {% csrf_token %}
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="id_is_drunk">飲んだ</label>
+        {{ form.is_drunk }}
+      </div>
+      <div class="form-group">
+        <label for="id_is_liked">いいね</label>
+        {{ form.is_liked }}
+      </div>
+      <div class="form-group">
+        <label for="id_rating">評価</label>
+        {{ form.rating }}
+      </div>
+      <div class="form-group">
+        <label for="id_drunk_at">飲んだ日</label>
+        {{ form.drunk_at }}
+      </div>
+      <div class="form-group" style="grid-column:1/-1;">
+        <label for="id_memo">メモ</label>
+        {{ form.memo }}
+      </div>
+    </div>
+    <button type="submit" class="btn-save">更新する</button>
+  </form>
+</div>
+{% endif %}
+{% endblock %}

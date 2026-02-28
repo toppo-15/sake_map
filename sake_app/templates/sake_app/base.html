@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}日本酒マップ{% endblock %}</title>
+  <style>
+    :root {
+      --primary: #8B0000;
+      --primary-light: #a52a2a;
+      --bg: #faf7f2;
+      --card-bg: #fff;
+      --text: #333;
+      --text-light: #666;
+      --border: #e0d8cf;
+      --accent: #d4a76a;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    header {
+      background: var(--primary);
+      color: #fff;
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    header h1 a { color: #fff; text-decoration: none; font-size: 1.4rem; }
+    nav a {
+      color: rgba(255,255,255,.85);
+      text-decoration: none;
+      margin-left: 1.5rem;
+      font-size: .95rem;
+    }
+    nav a:hover { color: #fff; }
+    .container { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
+    .breadcrumb {
+      font-size: .85rem;
+      color: var(--text-light);
+      margin-bottom: 1.5rem;
+    }
+    .breadcrumb a { color: var(--primary); text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    h2 { font-size: 1.5rem; margin-bottom: 1rem; color: var(--primary); }
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 1rem;
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      text-align: center;
+      text-decoration: none;
+      color: var(--text);
+      transition: box-shadow .2s, transform .15s;
+    }
+    .card:hover { box-shadow: 0 4px 12px rgba(0,0,0,.1); transform: translateY(-2px); }
+    .card .name { font-weight: bold; font-size: 1rem; }
+    .card .sub { font-size: .8rem; color: var(--text-light); margin-top: .3rem; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--card-bg);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,.06);
+    }
+    th, td { padding: .75rem 1rem; text-align: left; border-bottom: 1px solid var(--border); }
+    th { background: var(--primary); color: #fff; font-weight: 500; font-size: .9rem; }
+    tr:hover { background: #fdf5ec; }
+    td a { color: var(--primary); text-decoration: none; font-weight: 500; }
+    td a:hover { text-decoration: underline; }
+    .search-form {
+      display: flex;
+      gap: .5rem;
+      margin-bottom: 1.5rem;
+    }
+    .search-form input[type="text"] {
+      flex: 1;
+      padding: .6rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: .95rem;
+    }
+    .search-form button {
+      padding: .6rem 1.2rem;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: .95rem;
+    }
+    .search-form button:hover { background: var(--primary-light); }
+    .detail-section {
+      background: var(--card-bg);
+      border-radius: 8px;
+      padding: 1.5rem 2rem;
+      box-shadow: 0 1px 4px rgba(0,0,0,.06);
+      margin-bottom: 1.5rem;
+    }
+    .detail-section h3 {
+      font-size: 1.1rem;
+      color: var(--primary);
+      margin-bottom: .8rem;
+    }
+    .detail-row { display: flex; padding: .4rem 0; border-bottom: 1px solid #f0ebe4; }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-label { width: 140px; font-weight: 500; color: var(--text-light); flex-shrink: 0; }
+    .detail-value { flex: 1; }
+    .flavor-chart {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: .6rem;
+      margin-top: .5rem;
+    }
+    .flavor-bar-wrap { text-align: center; }
+    .flavor-bar-wrap .label { font-size: .8rem; color: var(--text-light); margin-bottom: .2rem; }
+    .flavor-bar {
+      height: 8px;
+      background: #eee;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .flavor-bar .fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 4px;
+    }
+    .flavor-bar-wrap .val { font-size: .75rem; color: var(--text-light); margin-top: .15rem; }
+    .badge {
+      display: inline-block;
+      padding: .15rem .6rem;
+      border-radius: 12px;
+      font-size: .8rem;
+      font-weight: 500;
+    }
+    .badge-drunk { background: #e8f5e9; color: #2e7d32; }
+    .badge-liked { background: #fce4ec; color: #c62828; }
+    .rating { color: var(--accent); letter-spacing: 1px; }
+    .empty { text-align: center; color: var(--text-light); padding: 3rem; }
+    /* フォーム */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: .8rem 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .form-group { display: flex; flex-direction: column; }
+    .form-group label { font-size: .85rem; font-weight: 500; color: var(--text-light); margin-bottom: .3rem; }
+    .form-check { width: 1.2rem; height: 1.2rem; accent-color: var(--primary); cursor: pointer; }
+    .form-select, .form-input {
+      padding: .5rem .7rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: .9rem;
+      background: #fff;
+    }
+    .form-textarea {
+      padding: .5rem .7rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: .9rem;
+      resize: vertical;
+      font-family: inherit;
+    }
+    .btn-save {
+      padding: .65rem 2rem;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: .95rem;
+      cursor: pointer;
+    }
+    .btn-save:hover { background: var(--primary-light); }
+    footer {
+      text-align: center;
+      padding: 1.5rem;
+      font-size: .8rem;
+      color: var(--text-light);
+      border-top: 1px solid var(--border);
+      margin-top: 2rem;
+    }
+    footer a { color: var(--primary); text-decoration: none; }
+  </style>
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+  <header>
+    <h1><a href="{% url 'sake_app:prefecture_list' %}">🍶 日本酒マップ</a></h1>
+    <nav>
+      <a href="{% url 'sake_app:prefecture_list' %}">都道府県</a>
+      <a href="{% url 'sake_app:sake_list' %}">日本酒一覧</a>
+      {% if user.is_authenticated %}
+      <a href="{% url 'sake_app:sakelog_list' %}">マイログ</a>
+      <a href="{% url 'sake_app:favorite_list' %}">♥ お気に入り</a>
+      <form method="post" action="{% url 'logout' %}" style="display:inline;margin-left:1.5rem;">
+        {% csrf_token %}
+        <button type="submit" style="background:none;border:none;color:rgba(255,255,255,.85);font-size:.95rem;cursor:pointer;padding:0;font-family:inherit;">ログアウト</button>
+      </form>
+      {% else %}
+      <a href="{% url 'login' %}">ログイン</a>
+      {% endif %}
+    </nav>
+  </header>
+
+  <div class="container">
+    {% block breadcrumb %}{% endblock %}
+    {% block content %}{% endblock %}
+  </div>
+
+  <footer>
+    <a href="https://sakenowa.com">さけのわデータ</a>を利用しています
+  </footer>
+</body>
+</html>

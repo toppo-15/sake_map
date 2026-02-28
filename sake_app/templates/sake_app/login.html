@@ -1,0 +1,94 @@
+{% extends "sake_app/base.html" %}
+{% block title %}ログイン - 日本酒マップ{% endblock %}
+
+{% block extra_css %}
+<style>
+  .login-card {
+    max-width: 400px;
+    margin: 3rem auto;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,.06);
+  }
+  .login-card h2 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
+  .login-card .form-group {
+    margin-bottom: 1rem;
+  }
+  .login-card label {
+    display: block;
+    font-weight: 600;
+    font-size: .9rem;
+    margin-bottom: .3rem;
+    color: var(--text);
+  }
+  .login-card input[type="text"],
+  .login-card input[type="password"] {
+    width: 100%;
+    padding: .6rem .8rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 1rem;
+    background: var(--bg);
+  }
+  .login-card input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(139,0,0,.15);
+  }
+  .login-card .btn-login {
+    width: 100%;
+    padding: .7rem;
+    border: none;
+    border-radius: 6px;
+    background: var(--primary);
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: .5rem;
+    transition: background .2s;
+  }
+  .login-card .btn-login:hover {
+    background: var(--primary-light);
+  }
+  .login-error {
+    background: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+    border-radius: 6px;
+    padding: .6rem .8rem;
+    font-size: .85rem;
+    margin-bottom: 1rem;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="login-card">
+  <h2>🍶 ログイン</h2>
+
+  {% if form.errors %}
+  <div class="login-error">
+    ユーザー名またはパスワードが正しくありません。
+  </div>
+  {% endif %}
+
+  <form method="post">
+    {% csrf_token %}
+    <div class="form-group">
+      <label for="id_username">ユーザー名</label>
+      <input type="text" name="username" id="id_username" autofocus required>
+    </div>
+    <div class="form-group">
+      <label for="id_password">パスワード</label>
+      <input type="password" name="password" id="id_password" required>
+    </div>
+    <button type="submit" class="btn-login">ログイン</button>
+  </form>
+</div>
+{% endblock %}

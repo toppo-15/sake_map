@@ -1,0 +1,41 @@
+{% extends "sake_app/base.html" %}
+{% block title %}都道府県マップ - 日本酒マップ{% endblock %}
+
+{% block extra_css %}
+<style>
+  .map-wrapper { position: relative; }
+  .map-tooltip {
+    position: fixed;
+    background: rgba(40,40,40,.92);
+    color: #fff;
+    padding: .5rem .8rem;
+    border-radius: 6px;
+    font-size: .85rem;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .15s;
+    z-index: 100;
+    line-height: 1.5;
+    white-space: nowrap;
+  }
+  .map-legend {
+    display: flex; align-items: center; gap: .4rem;
+    justify-content: center; margin-top: 1rem;
+    font-size: .8rem; color: var(--text-light);
+  }
+  .legend-bar {
+    width: 180px; height: 12px; border-radius: 4px;
+    background: linear-gradient(to right, #f7f7f7, #8B0000);
+  }
+  .geolonia-svg-map { width: 100%; max-width: 720px; margin: 0 auto; display: block; }
+  .geolonia-svg-map .prefecture { fill: #f7f7f7; stroke: #666; cursor: pointer; transition: opacity .15s; }
+  .geolonia-svg-map .boundary-line { stroke: #999; }
+</style>
+{% endblock %}
+
+{% block content %}
+<h2>都道府県マップ</h2>
+<p style="text-align:center;color:var(--text-light);margin-bottom:1rem;">都道府県をクリックすると、その地域の日本酒一覧が見られます</p>
+
+{% include "sake_app/japan_map.html" %}
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends "sake_app/base.html" %}
+{% block title %}日本酒一覧 - 日本酒マップ{% endblock %}
+
+{% block breadcrumb %}
+<div class="breadcrumb">
+  <a href="{% url 'sake_app:prefecture_list' %}">トップ</a> &gt; 日本酒一覧
+</div>
+{% endblock %}
+
+{% block content %}
+<h2>日本酒一覧</h2>
+
+<form class="search-form" method="get" action="{% url 'sake_app:sake_list' %}">
+  <input type="text" name="q" value="{{ q }}" placeholder="銘柄名・蔵元名で検索">
+  <button type="submit">検索</button>
+</form>
+
+{% if q %}
+<p style="margin-bottom:1rem;color:var(--text-light);">「{{ q }}」の検索結果：{{ sakes|length }}件</p>
+{% endif %}
+
+{% if sakes %}
+<table>
+  <thead>
+    <tr>
+      <th>銘柄名</th>
+      <th>蔵元</th>
+      <th>都道府県</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for sake in sakes %}
+    <tr>
+      <td><a href="{% url 'sake_app:sake_detail' sake.pk %}">{{ sake.name }}</a></td>
+      <td>{{ sake.brewery.name|default:"-" }}</td>
+      <td>
+        {% if sake.brewery and sake.brewery.prefecture %}
+        <a href="{% url 'sake_app:prefecture_detail' sake.brewery.prefecture.pk %}">
+          {{ sake.brewery.prefecture.name }}
+        </a>
+        {% else %}-{% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">該当する日本酒が見つかりませんでした。</p>
+{% endif %}
+{% endblock %}

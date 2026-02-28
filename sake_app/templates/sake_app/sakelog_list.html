@@ -1,0 +1,89 @@
+{% extends "sake_app/base.html" %}
+{% block title %}マイログ - 日本酒マップ{% endblock %}
+
+{% block extra_css %}
+<style>
+  .map-wrapper { position: relative; }
+  .map-tooltip {
+    position: fixed;
+    background: rgba(40,40,40,.92);
+    color: #fff;
+    padding: .5rem .8rem;
+    border-radius: 6px;
+    font-size: .85rem;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .15s;
+    z-index: 100;
+    line-height: 1.5;
+    white-space: nowrap;
+  }
+  .map-legend {
+    display: flex; align-items: center; gap: .4rem;
+    justify-content: center; margin-top: 1rem;
+    font-size: .8rem; color: var(--text-light);
+  }
+  .legend-bar {
+    width: 180px; height: 12px; border-radius: 4px;
+    background: linear-gradient(to right, #f7f7f7, #8B0000);
+  }
+  .map-section { margin-bottom: 2rem; }
+  .geolonia-svg-map { width: 100%; max-width: 720px; margin: 0 auto; display: block; }
+  .geolonia-svg-map .prefecture { fill: #f7f7f7; stroke: #666; cursor: pointer; transition: opacity .15s; }
+  .geolonia-svg-map .boundary-line { stroke: #999; }
+</style>
+{% endblock %}
+
+{% block breadcrumb %}
+<div class="breadcrumb">
+  <a href="{% url 'sake_app:prefecture_list' %}">トップ</a> &gt; マイログ
+</div>
+{% endblock %}
+
+{% block content %}
+<h2>マイログ</h2>
+
+{# ── 飲酒マップ ── #}
+<div class="map-section">
+  <h3 style="color:var(--primary);margin-bottom:.5rem;">飲酒マップ</h3>
+  <p style="color:var(--text-light);font-size:.85rem;margin-bottom:.8rem;">飲んだ日本酒の割合に応じて都道府県の色が変わります</p>
+  {% include "sake_app/japan_map.html" %}
+</div>
+
+{# ── ログ一覧テーブル ── #}
+{% if logs %}
+<table>
+  <thead>
+    <tr>
+      <th>銘柄名</th>
+      <th>都道府県</th>
+      <th>評価</th>
+      <th>状態</th>
+      <th>飲んだ日</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for log in logs %}
+    <tr>
+      <td><a href="{% url 'sake_app:sakelog_detail' log.pk %}">{{ log.sake.name }}</a></td>
+      <td>
+        {% if log.sake.brewery and log.sake.brewery.prefecture %}
+          {{ log.sake.brewery.prefecture.name }}
+        {% else %}-{% endif %}
+      </td>
+      <td class="rating">
+        {% if log.rating %}{{ log.get_rating_display }}{% else %}-{% endif %}
+      </td>
+      <td>
+        {% if log.is_drunk %}<span class="badge badge-drunk">飲んだ</span>{% endif %}
+        {% if log.is_liked %}<span class="badge badge-liked">♥ いいね</span>{% endif %}
+      </td>
+      <td>{{ log.drunk_at|default:"-" }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">まだ日本酒ログがありません。<br>日本酒の詳細ページから記録を追加しましょう。</p>
+{% endif %}
+{% endblock %}
