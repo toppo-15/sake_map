@@ -1,5 +1,4 @@
 {% load static %}
-{# 日本地図 SVG を fetch で読み込み、色分け・クリック・ツールチップを付与するインクルード #}
 {# 必要な変数: map_data (JSON文字列), map_base_url (県詳細URLのベース) #}
 
 <div class="map-wrapper">
@@ -49,10 +48,9 @@
 				}
 			}
 
-			// クリック → 都道府県詳細ページ（リップル風フィードバック付き）
+			// クリック → 都道府県詳細ページ
 			pref.style.cursor = "pointer";
 			pref.addEventListener("click", () => {
-				// クリック時の視覚フィードバック
 				const origFill = pref.style.fill || "";
 				const origStroke = pref.style.stroke || "";
 				const origStrokeWidth = pref.style.strokeWidth || "";

@@ -15,7 +15,7 @@
 | **日本酒詳細** | フレーバーチャート（華やか・芳醇・重厚・穏やか・ドライ・軽快）を表示 |
 | **マイログ** | 飲んだ日本酒を記録（飲んだ日・評価・メモ）。地図上で飲酒進捗を可視化 |
 | **お気に入り** | 「いいね」した日本酒をカードグリッドで一覧表示 |
-| **ログイン / ログアウト** | ユーザー認証。ログイン状態でマイログ・お気に入りが利用可能 |
+| **ログイン / ログアウト** | ユーザー認証（現在はadminのみ） |
 
 ---
 
@@ -57,12 +57,6 @@ cp .env.example .env
 ```ini
 DJANGO_SECRET_KEY=your-secret-key-here
 DJANGO_DEBUG=True
-```
-
-SECRET_KEY は以下のコマンドで生成できます：
-
-```bash
-python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
 ```
 
 ### 4. データベースのマイグレーション
