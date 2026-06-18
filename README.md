@@ -48,11 +48,7 @@ pip install -r requirements.txt
 
 ### 3. 環境変数の設定
 
-`.env` ファイルをプロジェクトルートに作成します：
-
-```bash
-cp .env.example .env
-```
+`.env` ファイルを作成：
 
 ```ini
 DJANGO_SECRET_KEY=your-secret-key-here
